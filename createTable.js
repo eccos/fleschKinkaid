@@ -1,56 +1,54 @@
 /*
 Get Word Syllable List JSON
 */
-var xmlhttp = new XMLHttpRequest();
-var url = "wordDict.txt";
+const xmlhttp = new XMLHttpRequest();
+const url = "wordDict.json";
 xmlhttp.open("GET", url, false);
 xmlhttp.send();
-var WordSyllables = JSON.parse(xmlhttp.responseText);
+// const wordSyllables = JSON.parse(xmlhttp.responseText);
+
+let wordSyllables = "";
+fetch(url)
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    return response.blob();
+  })
+  .then((response) => {
+    wordSyllables = response;
+  });
 
 /*
 Custom Functions
 */
-function getSyllableCount(searchWord, WordSyllables) {
-    if (WordSyllables.hasOwnProperty(searchWord)) return WordSyllables[searchWord];
+function getSyllableCount(searchWord, wordSyllables) {
+    if (wordSyllables.hasOwnProperty(searchWord)) return wordSyllables[searchWord];
     return false;
 }
 
 function stripHTML(text) {
-    var div = document.createElement("div");
+    const div = document.createElement("div");
     div.innerHTML = text;
     text = div.textContent || div.innerText || "";
     text = text.replace(/\\n/g, " ");	//old new line command
     return text;
 }
 
-function ajax(command, logFlag) {
-    // Get browser appropriate ajax handle
-    var xmlhttp; if (window.XMLHttpRequest) { xmlhttp = new XMLHttpRequest(); } else { xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); }
-    xmlhttp.open("POST", "redacted.cfm?command=" + command, false);
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xmlhttp.send();
-    var response = xmlhttp.responseText;
-    if (logFlag == true) {
-        console.log('AJAX CALL');
-        console.log(command);
-        console.log(response);
-    }
-    return response;
-}
+const flowId = 0;
+let showingDetails = false;
 
-var flowId = 0;
-var showingDetails = false;
-
-var btnDetails = document.getElementById("details");
-var lblDetails = document.getElementById("detailLegend");
-var tblCols = document.getElementsByClassName("details");
+const btnDetails = document.getElementById("details");
+const lblDetails = document.getElementById("detailLegend");
+const tblCols = document.getElementsByClassName("details");
 
 function detailsToggle() {
-    var str = "Show Details";
+    let str = "Show Details";
 
     if (showingDetails) {
         lblDetails.style.display = "none";
-        for (var cell = 0; cell < tblCols.length; cell++) {
+        for (let cell = 0; cell < tblCols.length; cell++) {
             tblCols[cell].style.display = "none";
         };
         showingDetails = false;
@@ -58,7 +56,7 @@ function detailsToggle() {
     else {
         str = "Hide Details";
         lblDetails.style.display = "block";
-        for (var cell = 0; cell < tblCols.length; cell++) {
+        for (let cell = 0; cell < tblCols.length; cell++) {
             tblCols[cell].style.display = "table-cell";
         };
         showingDetails = true;
@@ -67,34 +65,33 @@ function detailsToggle() {
     btnDetails.textContent = str;
 }
 
-var promptTable = document.getElementById("promptTable");
-var fsuTable = document.getElementById("fsuTable");
+const promptTable = document.getElementById("promptTable");
+const fsuTable = document.getElementById("fsuTable");
 
-var resp = "";
-var keys = ["PageId", "StartP1", "PromptId", "VPrompt", "P1Plus", "SyllableCount"];
+let resp = "";
+const keys = ["PageId", "StartP1", "PromptId", "VPrompt", "P1Plus", "SyllableCount"];
 
 resp = ajax("getNodesOfType" + "&flow_id=" + flowId + "&node_type=Prompt");
-var prompts = createDictArr(resp, "<br>", "|", keys);
+const prompts = createDictArr(resp, "<br>", "|", keys);
 createTable(promptTable, prompts, keys);
 
 resp = ajax("getNodesOfType" + "&flow_id=" + flowId + "&node_type=FSU");
-var fsus = createDictArr(resp, "<br>", "|", keys);
+const fsus = createDictArr(resp, "<br>", "|", keys);
 createTable(fsuTable, fsus, keys);
 
 function createDictArr(list, rowDelimiter, fieldDelimiter, keys) {
-    var dicts = [];
-    var dict = {};
-    var rows = [];
-    var fields = [];
+    let dicts = [];
+    let dict = {};
+    let rows, fields = [];
 
     rows = list.split(rowDelimiter);
     rows.pop(); //removing blank row at the end
 
-    for (var x = 0; x < rows.length; x++) {
+    for (let x = 0; x < rows.length; x++) {
         fields = rows[x].split(fieldDelimiter);
         //new dict to not overwrite the one in memory
         dict = {};
-        for (var y = 0; y < fields.length; y++) {
+        for (let y = 0; y < fields.length; y++) {
             dict[keys[y]] = fields[y];
         }
         dicts.push(dict);
@@ -103,22 +100,20 @@ function createDictArr(list, rowDelimiter, fieldDelimiter, keys) {
 }
 
 function createTable(tableElem, dictArray) {
-    var tbl = tableElem;
-    var th = {};
-    var tr = {};
-    var td = {};
-    var a = {};
-    var dicts = dictArray;
-    var keys = ["Unit", "S", "W", "Y", "Grade", "ID", "Phrase", "Syllable Count"];
-    var textStats = new TextStatistics();
-    var grade = 0;
-    var bgcolor = "";
+    const tbl = tableElem;
+    let th, tr, td, a = {};
+    const dicts = dictArray;
+    const keys = ["Unit", "S", "W", "Y", "Grade", "ID", "Phrase", "Syllable Count"];
+    const detailKeys = ["S", "W", "Y", "Syllable Count"];
+    const textStats = new TextStatistics();
+    let grade = 0;
+    let bgcolor = "";
 
     if (dicts.length > 0) {
         tr = tbl.insertRow();
-        for (var x = 0; x < keys.length; x++) {
+        for (let x = 0; x < keys.length; x++) {
             th = document.createElement("th");
-            if (x >= 1 && x <= 3 || x == 7) {
+            if (detailKeys.includes(keys[x])) {
                 th.className += "details";
             }
             th.textContent = keys[x];
@@ -126,7 +121,7 @@ function createTable(tableElem, dictArray) {
         }
     }
 
-    for (var x = 0; x < dicts.length; x++) {
+    for (let x = 0; x < dicts.length; x++) {
         tr = tbl.insertRow();
 
         td = tr.insertCell();
@@ -154,7 +149,7 @@ function createTable(tableElem, dictArray) {
         td.className += "details";
         td.style.textAlign = "center";
 
-        var syllableCount = 0;
+        let syllableCount = 0;
         textStats.text.split(/\s+/).forEach(function (word) {
             syllableCount += textStats.syllableCount(word);
         });
