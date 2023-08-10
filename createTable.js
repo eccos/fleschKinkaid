@@ -23,39 +23,31 @@ function detailsToggle() {
     btnToggleDetailsElem.textContent = (btnToggleDetailsElem.textContent === "Show Details") ? "Hide Details" : "Show Details";
 }
 
-function createTable(tableElem, dictArray) {
+function createTable(tableElem, phrases) {
     const tbl = tableElem;
     let th, tr, td, a = {};
-    const dicts = dictArray;
-    const keys = ["Unit", "S", "W", "Y", "Grade", "ID", "Phrase", "Syllable Count"];
+    const keys = ["S", "W", "Y", "Grade", "Phrase", "Syllable Count"];
     const detailKeys = ["S", "W", "Y", "Syllable Count"];
     const textStats = new TextStatistics();
     let grade = 0;
     let bgcolor = "";
 
-    if (dicts.length > 0) {
+    if (phrases.length > 0) {
         tr = tbl.insertRow();
-        for (let x = 0; x < keys.length; x++) {
+        for (const key of keys) {
             th = document.createElement("th");
-            if (detailKeys.includes(keys[x])) {
+            if (detailKeys.includes(key)) {
                 th.className += "hide";
             }
-            th.textContent = keys[x];
+            th.textContent = key;
             tr.appendChild(th);
         }
     }
 
-    for (let x = 0; x < dicts.length; x++) {
+    for (const phrase of phrases) {
+        textStats.setText(phrase.phrase);
+        
         tr = tbl.insertRow();
-
-        td = tr.insertCell();
-        a = document.createElement("a");
-        a.href = "redacted.cfm?flow_id=0&page_id=" + dicts[x].PageId + "&node_id=" + dicts[x].PromptId;
-        a.textContent = dicts[x].StartP1.replace(/<[^>]+>/g, "");
-        td.appendChild(a);
-        tr.appendChild(td);
-
-        textStats.setText(dicts[x].P1Plus);
 
         td = tr.insertCell();
         td.className += "hide";
@@ -94,13 +86,7 @@ function createTable(tableElem, dictArray) {
         tr.appendChild(td);
 
         td = tr.insertCell();
-        td.style.width = "80px";
-        td.style.textAlign = "center";
-        td.textContent = dicts[x].VPrompt;
-        tr.appendChild(td);
-
-        td = tr.insertCell();
-        td.textContent = stripHTML(dicts[x].P1Plus);
+        td.textContent = phrase.phrase;
         tr.appendChild(td);
 
         td = tr.insertCell();
@@ -109,14 +95,6 @@ function createTable(tableElem, dictArray) {
         textStats.debugText = "";
         tr.appendChild(td);
     }
-}
-
-function stripHTML(text) {
-    const div = document.createElement("div");
-    div.innerHTML = text;
-    text = div.textContent || div.innerText || "";
-    text = text.replace(/\\n/g, " ");	//old new line command
-    return text;
 }
 
 function getSyllableCount(searchWord, wordSyllables) {
