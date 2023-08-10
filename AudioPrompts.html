@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Audio Prompts</title>
+	<style>
+		body {
+			font-family: "arial";
+		}
+
+		tr:nth-of-type(odd) {
+			background: #eee;
+		}
+
+		.details {
+			display: none;
+		}
+	</style>
+	
+</head>
+
+<body>
+	<h1>Flesch-Kincaid Grade Level</h1>
+
+	<h2>Formula</h2>
+	<img src="fkFormula.svg">
+
+	<button id="details" onclick="detailsToggle()">Show Details</button>
+
+	<p id="detailLegend" style="display: none;">S = Sentences; W = Words; Y = Syllables;</p>
+
+	<h2>Prompts</h2>
+	<table id="promptTable"></table>
+
+	<script src="createTable.js"></script>
+</body>
+
+</html>
