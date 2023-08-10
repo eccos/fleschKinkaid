@@ -1,89 +1,26 @@
-const url = "wordDict.json";
-const wordSyllables = getWordSyllables(url);
+const wordSyllables = getJsonData("wordDict.json");
+const { phrases } = getJsonData("promptData.json");
+// const phrases = promptData.phrases;
 
-async function getWordSyllables(url) {
+const btnToggleDetailsElem = document.querySelector("#btn-toggle-details");
+const promptTableElem = document.querySelector("#prompt-table");
+const hiddenDetailsElemList = document.querySelectorAll(".hide");
+
+btnToggleDetailsElem.addEventListener("click", detailsToggle);
+
+// TODO: check if promise is complete before table creation
+createTable(promptTableElem, phrases);
+
+async function getJsonData(url) {
     const response = await fetch(url);
-    const wordSyllables = await response.json();
-    console.log(wordSyllables);
-    return wordSyllables;
+    const jsonData = await response.json();
+    console.log(jsonData);
+    return jsonData;
 }
-
-function getSyllableCount(searchWord, wordSyllables) {
-    if (wordSyllables.hasOwnProperty(searchWord)) {
-        return wordSyllables[searchWord];
-    }
-    return false;
-}
-
-function stripHTML(text) {
-    const div = document.createElement("div");
-    div.innerHTML = text;
-    text = div.textContent || div.innerText || "";
-    text = text.replace(/\\n/g, " ");	//old new line command
-    return text;
-}
-
-let showingDetails = false;
-const btnDetails = document.querySelector("#details");
-const lblDetails = document.querySelector("#detailLegend");
-const hiddenDetails = document.querySelectorAll(".hide-details");
 
 function detailsToggle() {
-    lblDetails.classList.toggle("hide-details");
-    hiddenDetails.classList.toggle("hide-details");
-    let str = "Show Details";
-
-    if (showingDetails) {
-        lblDetails.style.display = "none";
-        // for (let cell = 0; cell < tblCols.length; cell++) {
-        //     tblCols[cell].style.display = "none";
-        // };
-        showingDetails = false;
-    }
-    else {
-        str = "Hide Details";
-        lblDetails.style.display = "block";
-        // for (let cell = 0; cell < tblCols.length; cell++) {
-        //     tblCols[cell].style.display = "table-cell";
-        // };
-        showingDetails = true;
-    }
-
-    btnDetails.textContent = str;
-}
-
-const promptTable = document.querySelector("#promptTable");
-const fsuTable = document.querySelector("#fsuTable");
-
-let resp = "";
-const keys = ["PageId", "StartP1", "PromptId", "VPrompt", "P1Plus", "SyllableCount"];
-
-resp = ajax("getNodesOfType" + "&flow_id=" + flowId + "&node_type=Prompt");
-const prompts = createDictArr(resp, "<br>", "|", keys);
-createTable(promptTable, prompts, keys);
-
-resp = ajax("getNodesOfType" + "&flow_id=" + flowId + "&node_type=FSU");
-const fsus = createDictArr(resp, "<br>", "|", keys);
-createTable(fsuTable, fsus, keys);
-
-function createDictArr(list, rowDelimiter, fieldDelimiter, keys) {
-    let dicts = [];
-    let dict = {};
-    let rows, fields = [];
-
-    rows = list.split(rowDelimiter);
-    rows.pop(); //removing blank row at the end
-
-    for (let x = 0; x < rows.length; x++) {
-        fields = rows[x].split(fieldDelimiter);
-        //new dict to not overwrite the one in memory
-        dict = {};
-        for (let y = 0; y < fields.length; y++) {
-            dict[keys[y]] = fields[y];
-        }
-        dicts.push(dict);
-    }
-    return dicts;
+    hiddenDetailsElemList.classList.toggle("hide");
+    btnToggleDetailsElem.textContent = (btnToggleDetailsElem.textContent === "Show Details") ? "Hide Details" : "Show Details";
 }
 
 function createTable(tableElem, dictArray) {
@@ -101,7 +38,7 @@ function createTable(tableElem, dictArray) {
         for (let x = 0; x < keys.length; x++) {
             th = document.createElement("th");
             if (detailKeys.includes(keys[x])) {
-                th.className += "hide-details";
+                th.className += "hide";
             }
             th.textContent = keys[x];
             tr.appendChild(th);
@@ -121,19 +58,19 @@ function createTable(tableElem, dictArray) {
         textStats.setText(dicts[x].P1Plus);
 
         td = tr.insertCell();
-        td.className += "hide-details";
+        td.className += "hide";
         td.style.textAlign = "center";
         td.textContent = textStats.sentenceCount();
         tr.appendChild(td);
 
         td = tr.insertCell();
-        td.className += "hide-details";
+        td.className += "hide";
         td.style.textAlign = "center";
         td.textContent = textStats.wordCount();
         tr.appendChild(td);
 
         td = tr.insertCell();
-        td.className += "hide-details";
+        td.className += "hide";
         td.style.textAlign = "center";
 
         let syllableCount = 0;
@@ -167,9 +104,24 @@ function createTable(tableElem, dictArray) {
         tr.appendChild(td);
 
         td = tr.insertCell();
-        td.className += "hide-details";
+        td.className += "hide";
         td.innerHTML = textStats.debugText;
         textStats.debugText = "";
         tr.appendChild(td);
     }
+}
+
+function stripHTML(text) {
+    const div = document.createElement("div");
+    div.innerHTML = text;
+    text = div.textContent || div.innerText || "";
+    text = text.replace(/\\n/g, " ");	//old new line command
+    return text;
+}
+
+function getSyllableCount(searchWord, wordSyllables) {
+    if (wordSyllables.hasOwnProperty(searchWord)) {
+        return wordSyllables[searchWord];
+    }
+    return false;
 }
