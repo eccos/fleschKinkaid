@@ -1,30 +1,17 @@
-/*
-Get Word Syllable List JSON
-*/
-const xmlhttp = new XMLHttpRequest();
 const url = "wordDict.json";
-xmlhttp.open("GET", url, false);
-xmlhttp.send();
-// const wordSyllables = JSON.parse(xmlhttp.responseText);
+const wordSyllables = getWordSyllables(url);
 
-let wordSyllables = "";
-fetch(url)
-  .then((response) => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
+async function getWordSyllables(url) {
+    const response = await fetch(url);
+    const wordSyllables = await response.json();
+    console.log(wordSyllables);
+    return wordSyllables;
+}
 
-    return response.blob();
-  })
-  .then((response) => {
-    wordSyllables = response;
-  });
-
-/*
-Custom Functions
-*/
 function getSyllableCount(searchWord, wordSyllables) {
-    if (wordSyllables.hasOwnProperty(searchWord)) return wordSyllables[searchWord];
+    if (wordSyllables.hasOwnProperty(searchWord)) {
+        return wordSyllables[searchWord];
+    }
     return false;
 }
 
@@ -36,37 +23,37 @@ function stripHTML(text) {
     return text;
 }
 
-const flowId = 0;
 let showingDetails = false;
-
-const btnDetails = document.getElementById("details");
-const lblDetails = document.getElementById("detailLegend");
-const tblCols = document.getElementsByClassName("details");
+const btnDetails = document.querySelector("#details");
+const lblDetails = document.querySelector("#detailLegend");
+const hiddenDetails = document.querySelectorAll(".hide-details");
 
 function detailsToggle() {
+    lblDetails.classList.toggle("hide-details");
+    hiddenDetails.classList.toggle("hide-details");
     let str = "Show Details";
 
     if (showingDetails) {
         lblDetails.style.display = "none";
-        for (let cell = 0; cell < tblCols.length; cell++) {
-            tblCols[cell].style.display = "none";
-        };
+        // for (let cell = 0; cell < tblCols.length; cell++) {
+        //     tblCols[cell].style.display = "none";
+        // };
         showingDetails = false;
     }
     else {
         str = "Hide Details";
         lblDetails.style.display = "block";
-        for (let cell = 0; cell < tblCols.length; cell++) {
-            tblCols[cell].style.display = "table-cell";
-        };
+        // for (let cell = 0; cell < tblCols.length; cell++) {
+        //     tblCols[cell].style.display = "table-cell";
+        // };
         showingDetails = true;
     }
 
     btnDetails.textContent = str;
 }
 
-const promptTable = document.getElementById("promptTable");
-const fsuTable = document.getElementById("fsuTable");
+const promptTable = document.querySelector("#promptTable");
+const fsuTable = document.querySelector("#fsuTable");
 
 let resp = "";
 const keys = ["PageId", "StartP1", "PromptId", "VPrompt", "P1Plus", "SyllableCount"];
@@ -114,7 +101,7 @@ function createTable(tableElem, dictArray) {
         for (let x = 0; x < keys.length; x++) {
             th = document.createElement("th");
             if (detailKeys.includes(keys[x])) {
-                th.className += "details";
+                th.className += "hide-details";
             }
             th.textContent = keys[x];
             tr.appendChild(th);
@@ -134,19 +121,19 @@ function createTable(tableElem, dictArray) {
         textStats.setText(dicts[x].P1Plus);
 
         td = tr.insertCell();
-        td.className += "details";
+        td.className += "hide-details";
         td.style.textAlign = "center";
         td.textContent = textStats.sentenceCount();
         tr.appendChild(td);
 
         td = tr.insertCell();
-        td.className += "details";
+        td.className += "hide-details";
         td.style.textAlign = "center";
         td.textContent = textStats.wordCount();
         tr.appendChild(td);
 
         td = tr.insertCell();
-        td.className += "details";
+        td.className += "hide-details";
         td.style.textAlign = "center";
 
         let syllableCount = 0;
@@ -180,7 +167,7 @@ function createTable(tableElem, dictArray) {
         tr.appendChild(td);
 
         td = tr.insertCell();
-        td.className += "details";
+        td.className += "hide-details";
         td.innerHTML = textStats.debugText;
         textStats.debugText = "";
         tr.appendChild(td);

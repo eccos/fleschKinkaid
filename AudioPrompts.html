@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Audio Prompts</title>
 	<style>
-		.details {
+		.hide-details {
 			display: none;
 		}
 	</style>
@@ -27,7 +27,7 @@
 
 		<div class="mb-5">
 			<button type="button" id="details" class="btn btn-primary" onclick="detailsToggle()">Show Details</button>
-			<p id="detailLegend" style="display: none;">S = Sentences; W = Words; Y = Syllables;</p>
+			<p id="detailLegend" class="hide-details">S = Sentences; W = Words; Y = Syllables;</p>
 
 			<h2>Prompts</h2>
 			<table id="promptTable" class="table table-striped"></table>
