@@ -7,11 +7,8 @@ btnToggleDetailsElem.addEventListener("click", detailsToggle);
 createTable(promptTableElem);
 
 async function getJsonData() {
-    let response = await fetch("wordDict.json");
-    const wordSyllables = await response.json();
-    response = await fetch("promptData.json");
+    response = await fetch("phraseData.json");
     const { phrases } = await response.json();
-    console.log(wordSyllables, phrases);
 
     return phrases;
 }
@@ -45,7 +42,7 @@ async function createTable(tableElem) {
     }
 
     for (const phrase of phrases) {
-        const textStats = new textstatistics(phrase.phrase);
+        const textStats = new textstatistics(phrase);
 
         tr = tbl.insertRow();
 
@@ -87,7 +84,7 @@ async function createTable(tableElem) {
         tr.appendChild(td);
 
         td = tr.insertCell();
-        td.textContent = phrase.phrase;
+        td.textContent = phrase;
         tr.appendChild(td);
 
         td = tr.insertCell();
