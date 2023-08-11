@@ -1,20 +1,19 @@
-const wordSyllables = getJsonData("wordDict.json");
-const { phrases } = getJsonData("promptData.json");
-
 const btnToggleDetailsElem = document.querySelector("#btn-toggle-details");
 const promptTableElem = document.querySelector("#prompt-table");
-const hiddenElemList = document.querySelectorAll(".hide");
+let hiddenElemList;
 
 btnToggleDetailsElem.addEventListener("click", detailsToggle);
 
-// TODO: check if promise is complete before table creation
-createTable(promptTableElem, phrases);
+createTable(promptTableElem);
 
-async function getJsonData(url) {
-    const response = await fetch(url);
-    const jsonData = await response.json();
-    console.log(jsonData);
-    return jsonData;
+async function getJsonData() {
+    let response = await fetch("wordDict.json");
+    const wordSyllables = await response.json();
+    response = await fetch("promptData.json");
+    const { phrases } = await response.json();
+    console.log(wordSyllables, phrases);
+
+    return phrases;
 }
 
 function detailsToggle() {
@@ -24,7 +23,8 @@ function detailsToggle() {
     btnToggleDetailsElem.textContent = (btnToggleDetailsElem.textContent === "Show Details") ? "Hide Details" : "Show Details";
 }
 
-function createTable(tableElem, phrases) {
+async function createTable(tableElem) {
+    const phrases = await getJsonData();
     const tbl = tableElem;
     let th, tr, td, a = {};
     const keys = ["S", "W", "Y", "Grade", "Phrase", "Syllable Count"];
@@ -95,4 +95,6 @@ function createTable(tableElem, phrases) {
         textStats.debugText = "";
         tr.appendChild(td);
     }
+
+    hiddenElemList = document.querySelectorAll(".hide");
 }
