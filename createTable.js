@@ -1,8 +1,38 @@
 const btnToggleDetailsElem = document.querySelector("#btn-toggle-details");
 const promptTableElem = document.querySelector("#prompt-table");
 let hiddenElemList;
+const inpPhraseSect = document.querySelector("#input-phrase-section");
+const textPhraseElem = document.querySelector("#text-phrase");
 
-btnToggleDetailsElem.addEventListener("click", detailsToggle);
+btnToggleDetailsElem.addEventListener("click", toggleDetails);
+textPhraseElem.addEventListener("input", ({ target: { value : phrase } }) => {
+    inpPhraseSect.textContent = "";
+    if (!phrase || !phrase.trim()) return;
+    const textStats = new textstatistics(phrase);
+    const grade = textStats.fleschKincaidGradeLevel();
+    
+    let p;
+    p = document.createElement("p");
+    p.textContent = "Grade Level: " + grade;
+    inpPhraseSect.appendChild(p);
+    
+    p = document.createElement("p");
+    p.textContent = "Sentences: " + textStats.sentenceCount();
+    inpPhraseSect.appendChild(p);
+    
+    p = document.createElement("p");
+    p.textContent = "Words: " + textStats.wordCount();
+    inpPhraseSect.appendChild(p);
+    
+    const [debugText, syllableCount] = formatStrWithSyllableCountForEachWord(phrase);
+    p = document.createElement("p");
+    p.textContent = "Syllables: " + syllableCount;
+    inpPhraseSect.appendChild(p);
+    
+    p = document.createElement("p");
+    p.textContent = `Syllables / Word: ${debugText}`;
+    inpPhraseSect.appendChild(p);
+});
 
 createTable(promptTableElem);
 
@@ -13,7 +43,8 @@ async function getJsonData() {
     return phrases;
 }
 
-function detailsToggle() {
+function toggleDetails() {
+    if (!hiddenElemList) return;
     for (const hiddenElem of hiddenElemList) {
         hiddenElem.classList.toggle("hide");
     }
@@ -24,8 +55,8 @@ async function createTable(tableElem) {
     const phrases = await getJsonData();
     const tbl = tableElem;
     let th, tr, td, a = {};
-    const keys = ["S", "W", "Y", "Grade", "Phrase", "Syllable Count"];
-    const detailKeys = ["S", "W", "Y", "Syllable Count"];
+    const keys = ["S", "W", "Y", "Grade", "Phrase", "Syllable / Word"];
+    const detailKeys = ["S", "W", "Y", "Syllable / Word"];
     let grade = 0;
     let bgcolor = "";
 
@@ -62,13 +93,7 @@ async function createTable(tableElem) {
         td.className += "hide";
         td.style.textAlign = "center";
 
-        let syllableCountTotal = 0;
-        let debugText = "";
-        textStats.text.split(/\s+/).forEach((word) => {
-            syllableCount = textStats.syllableCount(word);
-            syllableCountTotal += syllableCount;
-            debugText += `${word}[${syllableCount}] `;
-        });
+        const [debugText, syllableCountTotal] = formatStrWithSyllableCountForEachWord(phrase);
         td.textContent = syllableCountTotal;
         tr.appendChild(td);
 
@@ -94,4 +119,17 @@ async function createTable(tableElem) {
     }
 
     hiddenElemList = document.querySelectorAll(".hide");
+}
+
+function formatStrWithSyllableCountForEachWord(phrase) {
+    const textStats = new textstatistics(phrase);
+    let syllableCount = 0;
+    let syllableCountTotal = 0;
+    let debugText = "";
+    textStats.text.split(/\s+/).forEach((word) => {
+        syllableCount = textStats.syllableCount(word);
+        syllableCountTotal += syllableCount;
+        debugText += `${word}[${syllableCount}] `;
+    });
+    return [debugText, syllableCountTotal];
 }
