@@ -1,6 +1,5 @@
 const wordSyllables = getJsonData("wordDict.json");
 const { phrases } = getJsonData("promptData.json");
-// const phrases = promptData.phrases;
 
 const btnToggleDetailsElem = document.querySelector("#btn-toggle-details");
 const promptTableElem = document.querySelector("#prompt-table");
@@ -28,7 +27,6 @@ function createTable(tableElem, phrases) {
     let th, tr, td, a = {};
     const keys = ["S", "W", "Y", "Grade", "Phrase", "Syllable Count"];
     const detailKeys = ["S", "W", "Y", "Syllable Count"];
-    const textStats = new TextStatistics();
     let grade = 0;
     let bgcolor = "";
 
@@ -45,8 +43,8 @@ function createTable(tableElem, phrases) {
     }
 
     for (const phrase of phrases) {
-        textStats.setText(phrase.phrase);
-        
+        const textStats = new textstatistics(phrase.phrase);
+
         tr = tbl.insertRow();
 
         td = tr.insertCell();
@@ -95,11 +93,4 @@ function createTable(tableElem, phrases) {
         textStats.debugText = "";
         tr.appendChild(td);
     }
-}
-
-function getSyllableCount(searchWord, wordSyllables) {
-    if (wordSyllables.hasOwnProperty(searchWord)) {
-        return wordSyllables[searchWord];
-    }
-    return false;
 }
