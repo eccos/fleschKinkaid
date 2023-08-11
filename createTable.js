@@ -65,14 +65,15 @@ async function createTable(tableElem) {
         td.className += "hide";
         td.style.textAlign = "center";
 
-        let syllableCount = 0;
-        textStats.text.split(/\s+/).forEach(function (word) {
-            syllableCount += textStats.syllableCount(word);
+        let syllableCountTotal = 0;
+        let debugText = "";
+        textStats.text.split(/\s+/).forEach((word) => {
+            syllableCount = textStats.syllableCount(word);
+            syllableCountTotal += syllableCount;
+            debugText += `${word}[${syllableCount}] `;
         });
-        td.textContent = syllableCount;
+        td.textContent = syllableCountTotal;
         tr.appendChild(td);
-
-        textStats.debugText = "";
 
         td = tr.insertCell();
         td.style.textAlign = "center";
@@ -91,8 +92,7 @@ async function createTable(tableElem) {
 
         td = tr.insertCell();
         td.className += "hide";
-        td.innerHTML = textStats.debugText;
-        textStats.debugText = "";
+        td.innerHTML = debugText;
         tr.appendChild(td);
     }
 
