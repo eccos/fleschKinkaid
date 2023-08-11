@@ -3,7 +3,7 @@ const { phrases } = getJsonData("promptData.json");
 
 const btnToggleDetailsElem = document.querySelector("#btn-toggle-details");
 const promptTableElem = document.querySelector("#prompt-table");
-const hiddenDetailsElemList = document.querySelectorAll(".hide");
+const hiddenElemList = document.querySelectorAll(".hide");
 
 btnToggleDetailsElem.addEventListener("click", detailsToggle);
 
@@ -18,7 +18,9 @@ async function getJsonData(url) {
 }
 
 function detailsToggle() {
-    hiddenDetailsElemList.classList.toggle("hide");
+    for (const hiddenElem of hiddenElemList) {
+        hiddenElem.classList.toggle("hide");
+    }
     btnToggleDetailsElem.textContent = (btnToggleDetailsElem.textContent === "Show Details") ? "Hide Details" : "Show Details";
 }
 
