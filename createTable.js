@@ -5,39 +5,34 @@ const inpPhraseSect = document.querySelector("#input-phrase-section");
 const textPhraseElem = document.querySelector("#text-phrase");
 
 btnToggleDetailsElem.addEventListener("click", toggleDetails);
-textPhraseElem.addEventListener("input", ({ target: { value : phrase } }) => {
+textPhraseElem.addEventListener("input", ({ target: { value: phrase } }) => {
     inpPhraseSect.textContent = "";
     if (!phrase || !phrase.trim()) return;
     const textStats = new textstatistics(phrase);
     const grade = textStats.fleschKincaidGradeLevel();
-    
-    let p;
-    p = document.createElement("p");
-    p.textContent = "Grade Level: " + grade;
-    inpPhraseSect.appendChild(p);
-    
-    p = document.createElement("p");
-    p.textContent = "Sentences: " + textStats.sentenceCount();
-    inpPhraseSect.appendChild(p);
-    
-    p = document.createElement("p");
-    p.textContent = "Words: " + textStats.wordCount();
-    inpPhraseSect.appendChild(p);
-    
+
+    let textNode;
+    textNode = document.createTextNode(`Grade Level: ${grade}\n`);
+    inpPhraseSect.appendChild(textNode);
+
+    textNode = document.createTextNode(`Sentences: ${textStats.sentenceCount()}\n`);
+    inpPhraseSect.appendChild(textNode);
+
+    textNode = document.createTextNode(`Words: ${textStats.wordCount()}\n`);
+    inpPhraseSect.appendChild(textNode);
+
     const [debugText, syllableCount] = formatStrWithSyllableCountForEachWord(phrase);
-    p = document.createElement("p");
-    p.textContent = "Syllables: " + syllableCount;
-    inpPhraseSect.appendChild(p);
-    
-    p = document.createElement("p");
-    p.textContent = `Syllables / Word: ${debugText}`;
-    inpPhraseSect.appendChild(p);
+    textNode = document.createTextNode(`Syllables: ${syllableCount}\n`);
+    inpPhraseSect.appendChild(textNode);
+
+    textNode = document.createTextNode(`Syllables / Word: ${debugText}\n`);
+    inpPhraseSect.appendChild(textNode);
 });
 
 createTable(promptTableElem);
 
 async function getJsonData() {
-    response = await fetch("phraseData.json");
+    const response = await fetch("phraseData.json");
     const { phrases } = await response.json();
 
     return phrases;
@@ -53,6 +48,8 @@ function toggleDetails() {
 
 async function createTable(tableElem) {
     const phrases = await getJsonData();
+    if (!phrases && phrases.length == 0) return;
+    
     const tbl = tableElem;
     let th, tr, td, a = {};
     const keys = ["S", "W", "Y", "Grade", "Phrase", "Syllable / Word"];
@@ -60,16 +57,14 @@ async function createTable(tableElem) {
     let grade = 0;
     let bgcolor = "";
 
-    if (phrases.length > 0) {
-        tr = tbl.insertRow();
-        for (const key of keys) {
-            th = document.createElement("th");
-            if (detailKeys.includes(key)) {
-                th.className += "hide";
-            }
-            th.textContent = key;
-            tr.appendChild(th);
+    tr = tbl.insertRow();
+    for (const key of keys) {
+        th = document.createElement("th");
+        if (detailKeys.includes(key)) {
+            th.className += "hide";
         }
+        th.textContent = key;
+        tr.appendChild(th);
     }
 
     for (const phrase of phrases) {
